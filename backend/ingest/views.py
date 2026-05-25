@@ -32,6 +32,15 @@ def seed(_request):
     return Response(dashboard_payload())
 
 
+@api_view(["POST"])
+def clear_data(_request):
+    EmissionActivity.objects.all().delete()
+    SourceBatch.objects.all().delete()
+    Tenant.objects.all().delete()
+    tenant_bootstrap()
+    return Response(dashboard_payload())
+
+
 @api_view(["GET"])
 def dashboard(_request):
     return Response(dashboard_payload())

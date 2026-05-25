@@ -1,9 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { AlertTriangle, Check, Database, FileUp, Lock, RefreshCw, X } from "lucide-react";
+import { AlertTriangle, BarChart3, Check, Database, FileText, FileUp, Lock, Trash2, X } from "lucide-react";
 import "./styles.css";
 
 const API = import.meta.env.VITE_API_BASE || "/api";
+const SOURCES = [
+  { id: "sap", label: "SAP", detail: "Fuel and procurement", sample: "sap_material_documents.csv" },
+  { id: "utility", label: "Utility", detail: "Electricity meters", sample: "utility_meter_export.csv" },
+  { id: "travel", label: "Travel", detail: "Flights, hotel, ground", sample: "concur_travel_expenses.csv" },
+];
 
 function formatKg(value) {
   return Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 1 });
@@ -21,9 +26,9 @@ function App() {
     setData(await res.json());
   }
 
-  async function seed() {
+  async function clearData() {
     setBusy(true);
-    const res = await fetch(`${API}/seed/`, { method: "POST" });
+    const res = await fetch(`${API}/clear/`, { method: "POST" });
     setData(await res.json());
     setBusy(false);
   }
@@ -59,6 +64,7 @@ function App() {
     setBusy(true);
     await fetch(`${API}/upload/`, { method: "POST", body: form });
     await load();
+    setUpload({ ...upload, file: null });
     setBusy(false);
   }
 
@@ -73,25 +79,45 @@ function App() {
   }), [data.activities, status, source]);
 
   const needsReview = (data.stats.status_counts.pending || 0) + (data.stats.status_counts.flagged || 0);
+  const maxSource = Math.max(...(data.stats.source_totals || []).map((item) => Number(item.co2e || 0)), 1);
 
   return (
     <main className="shell">
       <header className="topbar">
         <div>
           <p className="eyebrow">Breathe ESG prototype</p>
-          <h1>Analyst ingestion review</h1>
+          <h1>Enterprise emissions review</h1>
+          <p className="subtitle">Normalize SAP, utility, and travel data before audit sign-off.</p>
         </div>
         <div className="actions">
-          <button onClick={seed} disabled={busy}><RefreshCw size={16} /> Seed realistic data</button>
           <button onClick={lockApproved} disabled={busy}><Lock size={16} /> Lock approved</button>
+          <button className="ghost danger" onClick={clearData} disabled={busy}><Trash2 size={16} /> Clear</button>
         </div>
       </header>
 
       <section className="metrics">
-        <div><span>Total rows</span><strong>{data.stats.rows || 0}</strong></div>
-        <div><span>CO2e kg</span><strong>{formatKg(data.stats.co2e_kg)}</strong></div>
-        <div><span>Needs review</span><strong>{needsReview}</strong></div>
-        <div><span>Locked</span><strong>{data.stats.status_counts.locked || 0}</strong></div>
+        <div><span>Total rows</span><strong>{data.stats.rows || 0}</strong><em>Imported activities</em></div>
+        <div><span>CO2e kg</span><strong>{formatKg(data.stats.co2e_kg)}</strong><em>Normalized total</em></div>
+        <div><span>Needs review</span><strong>{needsReview}</strong><em>Pending or flagged</em></div>
+        <div><span>Locked</span><strong>{data.stats.status_counts.locked || 0}</strong><em>Audit-ready rows</em></div>
+      </section>
+
+      <section className="source-strip">
+        {SOURCES.map((sourceItem) => {
+          const total = (data.stats.source_totals || []).find((item) => item.batch__source_type === sourceItem.id);
+          const co2e = Number(total?.co2e || 0);
+          return (
+            <div className="source-card" key={sourceItem.id}>
+              <div>
+                <FileText size={18} />
+                <span>{sourceItem.label}</span>
+              </div>
+              <strong>{formatKg(co2e)} kg</strong>
+              <small>{sourceItem.detail}</small>
+              <div className="bar"><i style={{ width: `${Math.max(4, (co2e / maxSource) * 100)}%` }} /></div>
+            </div>
+          );
+        })}
       </section>
 
       <section className="workbench">
@@ -113,8 +139,16 @@ function App() {
             <button disabled={busy || !upload.file}><FileUp size={16} /> Upload</button>
           </form>
 
+          <div className="sample-links">
+            <h2>Sample CSVs</h2>
+            {SOURCES.map((item) => (
+              <a key={item.id} href={`${API}/samples/${item.sample}`}>{item.label} sample</a>
+            ))}
+          </div>
+
           <h2>Batches</h2>
           <div className="batches">
+            {data.batches.length === 0 && <div className="empty-small">No uploads yet</div>}
             {data.batches.map((batch) => (
               <div className="batch" key={batch.id}>
                 <Database size={16} />
@@ -130,6 +164,7 @@ function App() {
 
         <section className="review">
           <div className="filters">
+            <div className="review-title"><BarChart3 size={18} /> Review queue</div>
             <select value={source} onChange={(e) => setSource(e.target.value)}>
               <option value="all">All sources</option>
               <option value="sap">SAP</option>
@@ -150,10 +185,16 @@ function App() {
             <div className="row header">
               <span>Source</span><span>Activity</span><span>Quantity</span><span>CO2e</span><span>Status</span><span>Actions</span>
             </div>
+            {filtered.length === 0 && (
+              <div className="empty-state">
+                <strong>No activity rows yet</strong>
+                <span>Upload SAP, utility, or travel CSV data to populate the analyst queue.</span>
+              </div>
+            )}
             {filtered.map((row) => (
               <div className="row" key={row.id}>
                 <span><strong>{row.batch.source_type}</strong><small>{row.external_id}</small></span>
-                <span><strong>{row.description}</strong><small>{row.facility?.name || "Unmapped facility"} · {row.scope.replace("_", " ")}</small></span>
+                <span><strong>{row.description}</strong><small>{row.facility?.name || "Unmapped facility"} - {row.scope.replace("_", " ")}</small></span>
                 <span>{Number(row.normalized_quantity).toLocaleString()} {row.normalized_unit}<small>{row.activity_date}</small></span>
                 <span>{formatKg(row.co2e_kg)} kg</span>
                 <span className={`pill ${row.status}`}>{row.status}</span>

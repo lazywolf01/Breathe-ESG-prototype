@@ -31,3 +31,12 @@ class IngestionWorkflowTests(TestCase):
         self.assertEqual(review.status_code, 200)
         self.assertEqual(lock.json()["locked"], 1)
         self.assertEqual(activity.status, "locked")
+
+    def test_clear_removes_uploaded_rows(self):
+        self.client.post("/api/seed/")
+
+        response = self.client.post("/api/clear/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["stats"]["rows"], 0)
+        self.assertEqual(EmissionActivity.objects.count(), 0)
