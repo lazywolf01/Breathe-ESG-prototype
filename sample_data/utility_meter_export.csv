@@ -1,0 +1,5 @@
+external_id,activity_date,period_start,period_end,facility_code,category,scope,description,quantity,unit,factor_key,meter_id,tariff,account_number
+UTL-BESCOM-8831-202604,2026-04-30,2026-04-01,2026-04-30,HQ01,electricity,scope_2,BESCOM portal export for HQ main electric meter,42600,kWh,electricity_india_grid,BLR-HQ-MAIN,HT2A,90122377
+UTL-MSEDCL-1188-202604,2026-04-30,2026-03-29,2026-04-28,PL01,electricity,scope_2,MSEDCL CSV for Pune plant production meter,118.4,MWh,electricity_india_grid,PUN-PLANT-01,HT Industrial,44591200
+UTL-TANGEDCO-7721-202604,2026-05-05,2026-03-20,2026-05-04,PL02,electricity,scope_2,TANGEDCO export spans a long billing period due to meter read delay,77400,kWh,electricity_india_grid,CHN-ASM-01,HT I-A,3388129
+UTL-BESCOM-8832-202604,2026-04-30,2026-04-01,2026-04-30,,electricity,scope_2,Shared EV charging meter without mapped facility,9200,kWh,electricity_india_grid,BLR-EV-02,LT6,90122379

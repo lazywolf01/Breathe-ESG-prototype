@@ -1,0 +1,6 @@
+external_id,activity_date,period_start,period_end,facility_code,category,scope,description,quantity,unit,factor_key,sap_material,sap_plant,movement_type,currency
+5000008123-2025,12.04.2026,,,PL01,diesel,scope_1,Diesel issued to backup generator tank from SAP MIGO goods issue,1840,L,diesel,DIESEL-HSD,PL01,201,INR
+5000008124-2025,15.04.2026,,,PL02,petrol,scope_1,Petrol procurement for company pool vehicles,620,L,petrol,PETROL-MS,PL02,101,INR
+5000008125-2025,19.04.2026,,,PL01,procurement,scope_3,Steel packaging supplier invoice captured as spend-based procurement,885000,INR,procurement_spend,PACK-STEEL,PL01,101,INR
+5000008126-2025,21.04.2026,,,,diesel,scope_1,Fuel posting without plant lookup from German export column WERKS,910,L,diesel,DIESEL-HSD,,201,INR
+5000008127-2025,25.04.2026,,,PL02,diesel,scope_1,Bulk diesel purchase unusually high for one document,7600,L,diesel,DIESEL-HSD,PL02,101,INR

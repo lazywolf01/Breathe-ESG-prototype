@@ -1,0 +1,6 @@
+external_id,activity_date,period_start,period_end,facility_code,category,scope,description,quantity,unit,factor_key,employee,origin,destination,expense_type,currency
+CONCUR-RPT-441-1,2026-04-08,,,HQ01,flight,scope_3,Concur airfare line item BLR to DEL economy; distance calculated outside Concur,1710,km,flight_short_haul,Asha Rao,BLR,DEL,Airfare,INR
+CONCUR-RPT-441-2,2026-04-09,,,HQ01,hotel,scope_3,Hotel folio for two nights in Delhi from expense report,2,night,hotel_night,Asha Rao,DEL,DEL,Hotel,INR
+CONCUR-RPT-501-1,2026-04-14,,,PL01,rail,scope_3,Pune to Mumbai rail booking from travel platform,150,km,rail,Rahul Menon,PUNE,MUMBAI,Rail,INR
+CONCUR-RPT-522-1,2026-04-20,,,PL02,flight,scope_3,International flight row with missing distance; only airport codes available,0,km,flight_long_haul,Meera Iyer,MAA,SIN,Airfare,INR
+CONCUR-RPT-522-2,2026-04-20,,,PL02,taxi,scope_3,Ground transport reimbursement from airport to hotel,31,km,taxi,Meera Iyer,SIN,SIN,Taxi,SGD
